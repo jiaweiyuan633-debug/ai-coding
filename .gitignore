@@ -51,3 +51,6 @@ logs/
 data/
 tmp/
 .tmp/
+
+# ===== ZCode 工具目录 =====
+.zcode/
