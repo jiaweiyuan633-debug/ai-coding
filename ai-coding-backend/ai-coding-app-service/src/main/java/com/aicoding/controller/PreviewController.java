@@ -32,10 +32,10 @@ public class PreviewController {
         if (app == null) {
             return ResponseEntity.notFound().build();
         }
-        // 提取 /** 部分作为相对路径，默认 index.html
-        String prefix = "/api/preview/" + appId + "/";
+        // 提取 /** 部分作为相对路径，默认 index.html（兼容有无 /api 前缀）
         String requestUri = request.getRequestURI();
-        String relativePath = requestUri.substring(prefix.length());
+        int marker = requestUri.indexOf("/preview/" + appId + "/");
+        String relativePath = marker < 0 ? "" : requestUri.substring(marker + ("/preview/" + appId + "/").length());
         if (relativePath.isBlank() || relativePath.endsWith("/")) {
             relativePath = relativePath + "index.html";
         }

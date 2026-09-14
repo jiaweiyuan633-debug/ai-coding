@@ -23,7 +23,7 @@ dubbo:
     name: ai-coding-app-service
   registry:
     address: nacos://${NACOS_ADDR:localhost:8848}
-    register-mode: instance
+    register-mode: interface
   protocol:
     name: dubbo
     port: 20882

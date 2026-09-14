@@ -273,7 +273,7 @@ public class CodeGenWorkflow {
         done.put("previewUrl", "/api/preview/" + state.appId() + "/index.html");
         done.put("version", version);
         sendSse(state, "done", done);
-        return Map.of();
+        return Map.of("version", version);
     }
 
     // ==================== 生成实现 ====================

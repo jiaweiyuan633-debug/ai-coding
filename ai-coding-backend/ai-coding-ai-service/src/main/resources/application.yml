@@ -17,9 +17,11 @@ server:
 dubbo:
   application:
     name: ai-coding-ai-service
+    service-discovery:
+      migration: FORCE_INTERFACE
   registry:
     address: nacos://${NACOS_ADDR:localhost:8848}
-    register-mode: instance
+    register-mode: interface
   protocol:
     name: dubbo
     port: 20883

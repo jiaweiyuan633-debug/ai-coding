@@ -118,8 +118,7 @@ public class AiCodeGenerationService {
     }
 
     private int safeVersion(WFState state) {
-        Object v = state.value("version");
-        return v == null ? 1 : Integer.parseInt(v.toString());
+        return state.<Integer>value("version").orElse(1);
     }
 
     private void release(long appId, AtomicBoolean released) {

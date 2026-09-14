@@ -25,9 +25,9 @@ public class SiteController {
     @GetMapping("/{deployKey}/**")
     public ResponseEntity<byte[]> serve(@PathVariable String deployKey, jakarta.servlet.http.HttpServletRequest request) {
         Path dir = deployService.deployDir(deployKey);
-        String prefix = "/api/s/" + deployKey + "/";
         String uri = request.getRequestURI();
-        String relativePath = uri.length() > prefix.length() ? uri.substring(prefix.length()) : "index.html";
+        int marker = uri.indexOf("/s/" + deployKey + "/");
+        String relativePath = marker < 0 ? "index.html" : uri.substring(marker + ("/s/" + deployKey + "/").length());
         if (relativePath.isBlank() || relativePath.endsWith("/")) {
             relativePath = relativePath + "index.html";
         }
