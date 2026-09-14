@@ -70,6 +70,13 @@
             <artifactId>langchain4j-reactor</artifactId>
         </dependency>
 
+        <!-- LangGraph4j 工作流编排 -->
+        <dependency>
+            <groupId>org.bsc.langgraph4j</groupId>
+            <artifactId>langgraph4j-core</artifactId>
+            <version>1.8.27</version>
+        </dependency>
+
         <!-- 数据层 -->
         <dependency>
             <groupId>com.baomidou</groupId>
