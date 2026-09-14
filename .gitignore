@@ -49,5 +49,5 @@ desktop.ini
 logs/
 *.log
 data/
-!docker/**/data/
+tmp/
 .tmp/
