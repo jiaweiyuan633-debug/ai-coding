@@ -1,0 +1,10 @@
+# AI Coding 微服务通用镜像：按 MODULE 构建参数选择 jar
+FROM eclipse-temurin:21-jre
+
+ARG MODULE
+WORKDIR /app
+
+COPY ${MODULE}/target/*.jar app.jar
+
+ENV JAVA_OPTS=""
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

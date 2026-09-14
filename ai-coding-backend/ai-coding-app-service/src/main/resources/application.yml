@@ -40,6 +40,7 @@ mybatis-plus:
 # 工作区与 ai-service 共享同一目录（版本快照/部署/预览读取产物）
 app:
   workspace-path: ${WORKSPACE_PATH:./tmp/workdir}
+  deploy-path: ${DEPLOY_PATH:./tmp/deploy}
 
 management:
   endpoints:

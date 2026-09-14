@@ -1,0 +1,161 @@
+# AI Coding 一键部署编排：微服务全家桶
+# 用法：docker compose up -d   （首次启动 MySQL 自动执行 ../sql/create_table.sql 建表）
+name: ai-coding
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ai-coding-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      MYSQL_DATABASE: ai_coding
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${MYSQL_PASSWORD:-123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-coding-redis
+    ports:
+      - "6379:6379"
+
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: ai-coding-nacos
+    environment:
+      MODE: standalone
+      NACOS_AUTH_ENABLE: "false"
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+
+  user-service:
+    build:
+      context: ../ai-coding-backend
+      dockerfile: ../docker/Dockerfile.service
+      args:
+        MODULE: ai-coding-user-service
+    image: ai-coding/user-service:latest
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      NACOS_ADDR: nacos:8848
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+
+  app-service:
+    build:
+      context: ../ai-coding-backend
+      dockerfile: ../docker/Dockerfile.service
+      args:
+        MODULE: ai-coding-app-service
+    image: ai-coding/app-service:latest
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      REDIS_HOST: redis
+      NACOS_ADDR: nacos:8848
+      WORKSPACE_PATH: /app/workspace
+      DEPLOY_PATH: /app/deploy
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    volumes:
+      - workspace-data:/app/workspace
+      - deploy-data:/app/deploy
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+
+  ai-service:
+    build:
+      context: ../ai-coding-backend
+      dockerfile: ../docker/Dockerfile.service
+      args:
+        MODULE: ai-coding-ai-service
+    image: ai-coding/ai-service:latest
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123456}
+      NACOS_ADDR: nacos:8848
+      WORKSPACE_PATH: /app/workspace
+      # 无 DeepSeek Key 时保持 mock；配置后改为 false
+      AI_MOCK_ENABLED: ${AI_MOCK_ENABLED:-true}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    volumes:
+      - workspace-data:/app/workspace
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos:
+        condition: service_started
+
+  gateway:
+    build:
+      context: ../ai-coding-backend
+      dockerfile: ../docker/Dockerfile.service
+      args:
+        MODULE: ai-coding-gateway
+    image: ai-coding/gateway:latest
+    environment:
+      NACOS_ADDR: nacos:8848
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - app-service
+      - ai-service
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    image: ai-coding/frontend:latest
+    ports:
+      - "80:80"
+    volumes:
+      - deploy-data:/srv/deploy:ro
+    depends_on:
+      - gateway
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-coding-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-coding-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin123}
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  mysql-data:
+  workspace-data:
+  deploy-data:
+  grafana-data:

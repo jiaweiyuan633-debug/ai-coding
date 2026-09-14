@@ -1,0 +1,8 @@
+ai-coding-frontend/node_modules
+ai-coding-frontend/dist
+ai-coding-backend/*/target
+ai-coding-backend/target
+ai-coding-backend/tmp
+**/.git
+**/.zcode
+**/docs

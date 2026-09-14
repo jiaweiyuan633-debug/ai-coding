@@ -1,0 +1,7 @@
+apiVersion: 1
+providers:
+  - name: ai-coding
+    folder: AI Coding
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards

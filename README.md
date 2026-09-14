@@ -38,8 +38,11 @@ cd ai-coding-backend && mvn spring-boot:run
 # 前端（阶段 5 起）
 cd ai-coding-frontend && npm install && npm run dev
 
-# 一键部署全家桶（阶段 7 起）
-docker compose up -d
+# 一键上线全家桶（微服务版，9 容器）
+mvn -q clean package -DskipTests -pl   ai-coding-user-service,ai-coding-app-service,ai-coding-ai-service,ai-coding-gateway
+cd ai-coding-frontend && npm install && npm run build
+cd ../docker && docker compose up -d --build
+# 主站 http://localhost ｜ 监控 http://localhost:3000 ｜ 分享站点 http://{deployKey}.localhost
 ```
 
 ## 📂 目录结构
@@ -61,8 +64,8 @@ docker compose up -d
 - [x] 阶段 3：LangGraph4j 工作流 + 版本时光机 + 多模型路由 + 用量计量
 - [x] 阶段 4：一键部署分享 + 截图封面 + 模板广场
 - [x] 阶段 5：Vue 3 前端全套
-- [ ] 阶段 6：微服务化（Nacos / Dubbo / Gateway / 多级缓存 / 监控）
-- [ ] 阶段 7：Docker Compose 上线 + 端到端冒烟测试
+- [x] 阶段 6：微服务化（Nacos / Dubbo / Gateway / 多级缓存 / 监控）
+- [x] 阶段 7：Docker Compose 上线 + 端到端冒烟测试
 
 ## 📚 文档
 
@@ -70,3 +73,14 @@ docker compose up -d
 - [竞品调研报告](docs/02-竞品调研报告.md)
 - [架构设计](docs/03-架构设计.md)
 - [部署手册](docs/04-部署手册.md)
+
+## 📊 监控看板
+
+Grafana 预置「AI Coding 微服务监控」：JVM 内存 / QPS / P95 耗时 / CPU，按服务分维度。
+
+## 🧪 双形态运行
+
+| 形态 | 入口 | 适用 |
+| ---- | ---- | ---- |
+| 单体版 | ai-coding-single（:8123） | 快速体验/本地调试 |
+| 微服务版 | gateway(8080) + user/app/ai 三服务 + Nacos + Dubbo | 架构学习/上云 |

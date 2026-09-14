@@ -1,6 +1,6 @@
 package com.aicoding.service.impl;
 
-import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.IdUtil;
 import com.aicoding.common.BusinessException;
 import com.aicoding.common.ErrorCode;
 import com.aicoding.core.ai.WorkspaceUtils;
@@ -9,7 +9,7 @@ import com.aicoding.model.entity.User;
 import com.aicoding.service.AppService;
 import com.aicoding.service.DeployService;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +28,20 @@ import java.util.List;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class DeployServiceImpl implements DeployService {
 
     private final WorkspaceUtils workspaceUtils;
     private final AppService appService;
 
     @Getter
-    private final Path deployRoot = Paths.get("./tmp/deploy").toAbsolutePath().normalize();
+    private final Path deployRoot;
+
+    public DeployServiceImpl(WorkspaceUtils workspaceUtils, AppService appService,
+            @Value("${app.deploy-path:./tmp/deploy}") String deployPath) {
+        this.workspaceUtils = workspaceUtils;
+        this.appService = appService;
+        this.deployRoot = Paths.get(deployPath).toAbsolutePath().normalize();
+    }
 
     @Override
     public App deploy(long appId, User user) {
@@ -52,8 +58,10 @@ public class DeployServiceImpl implements DeployService {
         }
         String deployKey = app.getDeployKey();
         if (deployKey == null || deployKey.isBlank()) {
-            deployKey = RandomUtil.randomString(12);
+            // 全小写：nginx 泛子域名会将 Host 转小写，Linux 文件系统大小写敏感
+            deployKey = IdUtil.simpleUUID().substring(0, 12);
         }
+        deployKey = deployKey.toLowerCase();
         Path targetDir = deployRoot.resolve(deployKey).normalize();
         if (!targetDir.startsWith(deployRoot)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "非法部署标识");
