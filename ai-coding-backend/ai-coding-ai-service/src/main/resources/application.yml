@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: ai-coding-ai-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:ai_coding}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:123456}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+
+server:
+  port: 8203
+
+dubbo:
+  application:
+    name: ai-coding-ai-service
+  registry:
+    address: nacos://${NACOS_ADDR:localhost:8848}
+    register-mode: instance
+  protocol:
+    name: dubbo
+    port: 20883
+  consumer:
+    timeout: 30000
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# AI 模型配置
+ai:
+  mock-enabled: ${AI_MOCK_ENABLED:true}
+  deepseek:
+    base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+    api-key: ${DEEPSEEK_API_KEY:}
+    chat-model: ${DEEPSEEK_CHAT_MODEL:deepseek-chat}
+  timeout-seconds: 300
+
+# 工作区与 app-service 共享同一目录（生成产物落盘）
+app:
+  workspace-path: ${WORKSPACE_PATH:./tmp/workdir}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

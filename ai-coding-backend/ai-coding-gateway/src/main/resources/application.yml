@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: ai-coding-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: user-service
+          uri: lb://ai-coding-user-service
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+        - id: app-service
+          uri: lb://ai-coding-app-service
+          predicates:
+            - Path=/api/app/**,/api/preview/**,/api/s/**,/api/cover/**,/api/template/**
+          filters:
+            - StripPrefix=1
+        - id: ai-service
+          uri: lb://ai-coding-ai-service
+          predicates:
+            - Path=/api/chat/**,/api/usage/**
+          filters:
+            - StripPrefix=1
+
+server:
+  port: 8080
+
+jwt:
+  secret: ai-coding-secret-key-please-change-in-prod
+  expire-hours: 72
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

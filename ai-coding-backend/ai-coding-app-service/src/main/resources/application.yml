@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: ai-coding-app-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:ai_coding}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:123456}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:localhost:8848}
+
+server:
+  port: 8202
+
+dubbo:
+  application:
+    name: ai-coding-app-service
+  registry:
+    address: nacos://${NACOS_ADDR:localhost:8848}
+    register-mode: instance
+  protocol:
+    name: dubbo
+    port: 20882
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 工作区与 ai-service 共享同一目录（版本快照/部署/预览读取产物）
+app:
+  workspace-path: ${WORKSPACE_PATH:./tmp/workdir}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus

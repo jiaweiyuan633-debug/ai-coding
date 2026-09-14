@@ -7,26 +7,56 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.9</version>
+        <version>3.4.5</version>
         <relativePath/>
     </parent>
 
     <groupId>com.aicoding</groupId>
     <artifactId>ai-coding-backend</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
     <name>ai-coding-backend</name>
-    <description>AI Coding - AI 零代码应用生成平台后端</description>
+    <description>AI Coding - AI 零代码应用生成平台后端（单体 + 微服务双形态）</description>
+
+    <modules>
+        <module>ai-coding-common</module>
+        <module>ai-coding-model</module>
+        <module>ai-coding-api</module>
+        <module>ai-coding-single</module>
+        <module>ai-coding-user-service</module>
+        <module>ai-coding-app-service</module>
+        <module>ai-coding-ai-service</module>
+        <module>ai-coding-gateway</module>
+    </modules>
 
     <properties>
         <java.version>21</java.version>
         <maven.compiler.release>21</maven.compiler.release>
         <langchain4j.version>1.20.0</langchain4j.version>
+        <langgraph4j.version>1.8.27</langgraph4j.version>
         <mybatis-plus.version>3.5.12</mybatis-plus.version>
         <hutool.version>5.8.38</hutool.version>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.3.3</spring-cloud-alibaba.version>
+        <dubbo.version>3.3.4</dubbo.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-bom</artifactId>
@@ -34,117 +64,21 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.aicoding</groupId>
+                <artifactId>ai-coding-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aicoding</groupId>
+                <artifactId>ai-coding-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aicoding</groupId>
+                <artifactId>ai-coding-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <!-- Web / 校验 / AOP -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- LangChain4j（核心 + OpenAI 兼容模型） -->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-reactor</artifactId>
-        </dependency>
-
-        <!-- LangGraph4j 工作流编排 -->
-        <dependency>
-            <groupId>org.bsc.langgraph4j</groupId>
-            <artifactId>langgraph4j-core</artifactId>
-            <version>1.8.27</version>
-        </dependency>
-
-        <!-- 数据层 -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-            <version>${mybatis-plus.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-jsqlparser</artifactId>
-            <version>${mybatis-plus.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-        </dependency>
-
-        <!-- 缓存：Redis + Caffeine -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
-
-        <!-- 工具 -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- 测试 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
