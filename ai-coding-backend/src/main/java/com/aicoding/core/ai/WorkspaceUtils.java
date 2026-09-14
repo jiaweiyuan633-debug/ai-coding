@@ -74,6 +74,30 @@ public class WorkspaceUtils {
     }
 
     /**
+     * 复制应用工作区（Remix 用）
+     */
+    public void copyWorkspace(long sourceAppId, long targetAppId) {
+        Path source = appDir(sourceAppId);
+        Path target = appDir(targetAppId);
+        try (Stream<Path> stream = Files.walk(source)) {
+            stream.forEach(src -> {
+                try {
+                    Path dest = target.resolve(source.relativize(src));
+                    if (Files.isDirectory(src)) {
+                        Files.createDirectories(dest);
+                    } else {
+                        Files.createDirectories(dest.getParent());
+                        Files.copy(src, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException ignored) {
+                }
+            });
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "复制应用产物失败");
+        }
+    }
+
+    /**
      * 列出应用目录下全部相对路径
      */
     public List<String> listFiles(long appId) {

@@ -35,6 +35,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/login",
                         "/health",
                         "/preview/**",
+                        "/s/**",
+                        "/cover/**",
+                        "/template/**",
                         "/v3/api-docs/**",
                         "/error"
                 );

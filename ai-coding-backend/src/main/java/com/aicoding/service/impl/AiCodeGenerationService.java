@@ -37,6 +37,7 @@ public class AiCodeGenerationService {
     private final CodeGenWorkflow codeGenWorkflow;
     private final AppService appService;
     private final ChatHistoryService chatHistoryService;
+    private final com.aicoding.service.CoverService coverService;
 
     /**
      * 应用级生成锁：同一应用同时只允许一个生成任务
@@ -87,6 +88,10 @@ public class AiCodeGenerationService {
                 }
                 if ("未命名应用".equals(app.getAppName())) {
                     app.setAppName(abbreviate(app.getInitPrompt(), 16));
+                }
+                if (app.getCover() == null || app.getCover().isBlank()) {
+                    coverService.generateCover(appId, app.getAppName());
+                    app.setCover("/api/cover/" + appId);
                 }
                 appService.updateGeneratedMeta(app);
                 chatHistoryService.addChatMessage(appId, user.getId(),

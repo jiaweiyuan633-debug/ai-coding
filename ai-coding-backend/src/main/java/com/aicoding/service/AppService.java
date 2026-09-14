@@ -33,4 +33,9 @@ public interface AppService {
      * 生成完成后回写应用元信息（自动命名等）
      */
     void updateGeneratedMeta(App app);
+
+    /**
+     * Remix：复制他人公开应用为自己的新应用
+     */
+    long remixApp(long appId, User user);
 }

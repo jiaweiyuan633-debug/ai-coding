@@ -37,6 +37,7 @@ public class AppServiceImpl implements AppService {
 
     private final AppMapper appMapper;
     private final UserMapper userMapper;
+    private final com.aicoding.core.ai.WorkspaceUtils workspaceUtils;
 
     @Override
     public long addApp(AppAddRequest request, User user) {
@@ -127,6 +128,22 @@ public class AppServiceImpl implements AppService {
     @Override
     public void updateGeneratedMeta(App app) {
         appMapper.updateById(app);
+    }
+
+    @Override
+    public long remixApp(long appId, User user) {
+        App source = getAppById(appId);
+        App copy = new App();
+        copy.setInitPrompt(source.getInitPrompt());
+        copy.setAppName(source.getAppName() + " (Remix)");
+        copy.setCodeGenType(source.getCodeGenType());
+        copy.setUserId(user.getId());
+        copy.setPriority(0);
+        copy.setIsFeatured(0);
+        appMapper.insert(copy);
+        workspaceUtils.copyWorkspace(appId, copy.getId());
+        log.info("[App] Remix: {} -> {}（userId={}）", appId, copy.getId(), user.getId());
+        return copy.getId();
     }
 
     private PageResult<AppVO> pageApps(AppQueryRequest request) {
